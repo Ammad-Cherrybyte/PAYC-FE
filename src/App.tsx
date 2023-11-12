@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { Web3Provider } from '@ethersproject/providers';
 import { Container } from './styles';
+import { ScrollToTopOnRouteChange } from './utility/scroll';
 import Home from './compositions/home';
 import Portals from './compositions/portals';
 import Contact from './compositions/contact';
@@ -14,8 +16,12 @@ import Youtube from './components/icons/youtube';
 import Discord from './components/icons/discord';
 import Footer from './components/footer';
 import Anchor from './components/anchor';
-import { ScrollToTopOnRouteChange } from './utility/scroll';
 
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
 
 const StyledLink = styled(Link)(() => ({
   display: 'flex',
@@ -38,6 +44,26 @@ const StyledLink = styled(Link)(() => ({
 function App() {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+
+  useEffect(() => {
+    connectWallet();
+  }, []);
+
+  async function connectWallet() {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const provider = new Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        setWalletConnected(true);
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+      }
+    } else {
+      console.log("Please install MetaMask!");
+    }
+  }
+
 
   return (
     <Router>
@@ -57,11 +83,15 @@ function App() {
 
         <ScrollToTopOnRouteChange />
 
+        {walletConnected ? (
         <Routes>
           <Route path="/portals" element={<Portals />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/" element={<Home />} />
         </Routes>
+        ) : (
+          <div>Please connect your wallet to access the site.</div>
+          )}
 
         <Footer
           contactLink='/contact'
