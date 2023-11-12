@@ -1,9 +1,11 @@
-import { FC } from 'react';
+import { FC, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import Button from './button';
 import Box from './box';
 import ChevronDown from './icons/chevron';
 import Body from './body';
+import { Web3Provider } from '@ethersproject/providers';
+import { formatEther } from 'ethers/lib/utils';
 
 export type Props = {
   balance?: number;
@@ -41,10 +43,36 @@ const LocalButton = styled(Button)(({
   },
 }));
 
-const Wallet: FC<Props> = ({ balance = '0', address = '0x00000000000000000000000000000000000', profile }) => {
+const Wallet: FC<Props> = ({ profile }) => {
+  const [provider, setProvider] = useState<Web3Provider | null>(null);
+  const [userAddress, setUserAddress] = useState<string>('Not Connected');
+  const [balance, setBalance] = useState<string>('0');
+
+  useEffect(() => {
+    if (window.ethereum) {
+      const web3Provider = new Web3Provider(window.ethereum);
+      setProvider(web3Provider);
+    }
+  }, []);
+
+  const connectWallet = async () => {
+    if (provider) {
+      try {
+        const accounts = await provider.send("eth_requestAccounts", []);
+        const account = accounts[0];
+        setUserAddress(account);
+        const balance = await provider.getBalance(account);
+        setBalance(formatEther(balance));
+      } catch (error) {
+        console.error("Wallet connection failed:", error);
+      }
+    } else {
+      console.log("Please install MetaMask!");
+    }
+  };
 
   const handleClick = () => {
-    alert('Change Wallet!');
+    connectWallet();
   };
 
   return (
@@ -57,7 +85,7 @@ const Wallet: FC<Props> = ({ balance = '0', address = '0x00000000000000000000000
         after={<ChevronDown />}
         onClick={handleClick}
       >
-        <Address>{address}</Address>
+        <Address>{userAddress}</Address>
       </LocalButton>
     </Box>
   );
