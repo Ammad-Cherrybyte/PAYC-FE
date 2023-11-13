@@ -5,7 +5,7 @@ import Box from './box';
 import ChevronDown from './icons/chevron';
 import Body from './body';
 import { Web3Provider } from '@ethersproject/providers';
-import { formatEther } from 'ethers/lib/utils';
+import { formatEther } from 'ethers';
 
 export type Props = {
   balance?: number;
@@ -62,7 +62,7 @@ const Wallet: FC<Props> = ({ profile }) => {
         const account = accounts[0];
         setUserAddress(account);
         const balance = await provider.getBalance(account);
-        setBalance(formatEther(balance));
+        setBalance(formatEther(balance as any));
       } catch (error) {
         console.error("Wallet connection failed:", error);
       }
