@@ -133,7 +133,7 @@ function App() {
             >
               EngageR
             </Button>
-            {address && (
+            {/* {address && (
               <div style={{ marginLeft: "auto" }}>
                 <Button
                   onClick={() => {
@@ -147,7 +147,7 @@ function App() {
                   Logout
                 </Button>
               </div>
-            )}
+            )} */}
           </Navigation>
 
           <ScrollToTopOnRouteChange />
