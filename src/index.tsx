@@ -10,17 +10,9 @@ import {
   darkTheme,
 } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  zora,
-  goerli,
-  polygonMumbai,
-} from "wagmi/chains";
+
 import { publicProvider } from "wagmi/providers/public";
+import { polygonMumbai } from "viem/chains";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygonMumbai],

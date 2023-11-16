@@ -1,11 +1,11 @@
-import { FC, useState, useEffect } from 'react';
-import styled from '@emotion/styled';
-import Button from './button';
-import Box from './box';
-import ChevronDown from './icons/chevron';
-import Body from './body';
-import { Web3Provider } from '@ethersproject/providers';
-import { formatEther } from 'ethers';
+import { FC, useState, useEffect } from "react";
+import styled from "@emotion/styled";
+import Button from "./button";
+import Box from "./box";
+import ChevronDown from "./icons/chevron";
+import Body from "./body";
+import { Web3Provider } from "@ethersproject/providers";
+import { formatEther } from "ethers";
 
 export type Props = {
   balance?: number;
@@ -13,40 +13,40 @@ export type Props = {
   address?: string;
 };
 
-const Eth = styled.div(({
+const Eth = styled.div({
   gap: 4,
-  background: 'transparent',
-  border: '1px solid var(--button-border)',
+  background: "transparent",
+  border: "1px solid var(--button-border)",
   height: 35,
-  display: 'none',
-  alignItems: 'center',
-  padding: '8px 12px',
+  display: "none",
+  alignItems: "center",
+  padding: "8px 12px",
   borderTopLeftRadius: 4,
   borderBottomLeftRadius: 4,
-  '@media (min-width: 600px)' :{
-    display: 'flex',
+  "@media (min-width: 600px)": {
+    display: "flex",
   },
-}));
+});
 
-const Address = styled.div(({
-  width: '8ch',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-}));
+const Address = styled.div({
+  width: "8ch",
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+});
 
-const LocalButton = styled(Button)(({
-  '@media (min-width: 600px)' :{
+const LocalButton = styled(Button)({
+  "@media (min-width: 600px)": {
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0,
     marginLeft: -1,
   },
-}));
+});
 
 const Wallet: FC<Props> = ({ profile }) => {
   const [provider, setProvider] = useState<Web3Provider | null>(null);
-  const [userAddress, setUserAddress] = useState<string>('Not Connected');
-  const [balance, setBalance] = useState<string>('0');
+  const [userAddress, setUserAddress] = useState<string>("Not Connected");
+  const [balance, setBalance] = useState<string>("0");
 
   useEffect(() => {
     if (window.ethereum) {
@@ -76,12 +76,16 @@ const Wallet: FC<Props> = ({ profile }) => {
   };
 
   return (
-    <Box localStyles={{display: 'flex', alignItems: 'center'}}>
-      <Eth><Body>{balance} ETH</Body></Eth>
-      <LocalButton 
-        variant='SECONDARY'
-        size='S'
-        before={profile && <img width={17} height={17} src={profile} alt="Profile" />} 
+    <Box localStyles={{ display: "flex", alignItems: "center" }}>
+      <Eth>
+        <Body>{balance} ETH</Body>
+      </Eth>
+      <LocalButton
+        variant="SECONDARY"
+        size="S"
+        before={
+          profile && <img width={17} height={17} src={profile} alt="Profile" />
+        }
         after={<ChevronDown />}
         onClick={handleClick}
       >
@@ -89,6 +93,6 @@ const Wallet: FC<Props> = ({ profile }) => {
       </LocalButton>
     </Box>
   );
-}
+};
 
 export default Wallet;

@@ -19,8 +19,21 @@ import AmountInput from "../components/amountInput";
 import { useContractWrite, usePrepareContractWrite, useAccount } from "wagmi";
 import { proxyContractAbi } from "../ABIs/proxyContract";
 import { erc20Abi } from "../ABIs/erc20";
+import { parseEther } from "viem";
 import { ethers } from "ethers";
-import { parseEther } from "ethers";
+
+async function waitForConfirmation(txHash: any) {
+  let provider = new ethers.JsonRpcProvider(
+    "https://polygon-mumbai.infura.io/v3/685daa6fa7f94b4b89cdc6d7c5a8639e"
+  );
+
+  try {
+    let _res = await provider.waitForTransaction(txHash);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 export const Home: FC<{}> = () => {
   // ---------------wagmi----------------
   //const [isApproved, setisApproved] = useState(false);
@@ -41,9 +54,18 @@ export const Home: FC<{}> = () => {
     isSuccess: purchaseSuccess,
     write: purchaseWrite,
   } = useContractWrite({
-    address: "0xecb504d39723b0be0e3a9aa33d646642d1051ee1",
+    address: "0x8Af5D4C1b8623C62aED8C259895B21bF81036D3A",
     abi: proxyContractAbi,
     functionName: "purchaseSerum",
+    onSuccess: async (tx: any) => {
+      console.log(tx);
+      await waitForConfirmation(tx.hash);
+
+      alert("successfully bought serum !!!!");
+    },
+    onError: () => {
+      console.log("Errror in purchase");
+    },
   });
   //------------------approval----------------------
   // const { configApproveWrite } = usePrepareContractWrite({
@@ -60,17 +82,28 @@ export const Home: FC<{}> = () => {
     address: "0x64c061c5bca63f017cd6ba3b26101965b6b0c0ac",
     abi: erc20Abi,
     functionName: "approve",
+    onSuccess: async (tx: any) => {
+      console.log({ tx });
+      await waitForConfirmation(tx.hash);
+
+      await handleBuy();
+    },
+    onError: () => {
+      console.log("Errror in approval");
+    },
   });
   //------------------handle approve------------------
   const handleApproval = async () => {
     try {
-      let sheeshAmount = parseEther("420000000");
+      let sheeshAmountInEth = 420000000 * serumAmount;
+      // 420000000*2*10^18/
+      let sheeshAmountInWei = parseEther(sheeshAmountInEth + "");
       const resApprove = approvalWrite({
         args: [
           //address,
-          "0xecb504d39723b0be0e3a9aa33d646642d1051ee1",
+          "0x8Af5D4C1b8623C62aED8C259895B21bF81036D3A",
           // sheeshAmount,
-          4,
+          sheeshAmountInWei,
         ],
       });
     } catch (error) {
@@ -87,17 +120,18 @@ export const Home: FC<{}> = () => {
       alert(error);
     }
   };
-  useEffect(() => {
-    if (approvalSuccess) {
-      handleBuy();
-    }
-  }, [approvalSuccess]);
-  useEffect(() => {
-    if (purchaseSuccess) {
-      const msg = "You successfully bought the serum";
-      alert(msg);
-    }
-  }, [approvalSuccess]);
+  // useEffect(() => {
+  //   if (approvalSuccess) {
+  //     handleBuy();
+  //   }
+  // }, [approvalSuccess]);
+  // useEffect(() => {
+  //   if (purchaseSuccess) {
+  //     const msg = "You successfully bought the serum";
+  //     alert(msg);
+  //   }
+  // }, [approvalSuccess]);
+
   // -------------------------------------
   const [isRevealed, setIsRevealed] = useState(false);
   const [serumAmount, setSerumAmount] = useState(0);
