@@ -21,7 +21,7 @@ import { proxyContractAbi } from "../ABIs/proxyContract";
 import { erc20Abi } from "../ABIs/erc20";
 import { parseEther } from "viem";
 import { ethers } from "ethers";
-
+import Loader from "react-js-loader";
 async function waitForConfirmation(txHash: any) {
   let provider = new ethers.JsonRpcProvider(
     "https://polygon-mumbai.infura.io/v3/685daa6fa7f94b4b89cdc6d7c5a8639e"
@@ -42,6 +42,7 @@ export const Home: FC<{}> = () => {
   const proxyContractAddress = "";
   const [sheeshAmount, setSheeshAmount] = useState(0);
   const { address } = useAccount();
+  const [isApproveLoading, setIsApproveLoading] = useState(false);
   //---------------purchase serum--------------------
   // const { configPurchaseWrite } = usePrepareContractWrite({
   //   address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
@@ -85,6 +86,7 @@ export const Home: FC<{}> = () => {
     onSuccess: async (tx: any) => {
       console.log({ tx });
       await waitForConfirmation(tx.hash);
+      setIsApproveLoading(false);
 
       await handleBuy();
     },
@@ -95,17 +97,21 @@ export const Home: FC<{}> = () => {
   //------------------handle approve------------------
   const handleApproval = async () => {
     try {
-      let sheeshAmountInEth = 420000000 * serumAmount;
-      // 420000000*2*10^18/
-      let sheeshAmountInWei = parseEther(sheeshAmountInEth + "");
-      const resApprove = approvalWrite({
-        args: [
-          //address,
-          "0x8Af5D4C1b8623C62aED8C259895B21bF81036D3A",
-          // sheeshAmount,
-          sheeshAmountInWei,
-        ],
-      });
+      setIsApproveLoading(true);
+      setIsRevealed(!isRevealed);
+      setTimeout(() => {
+        let sheeshAmountInEth = 420000000 * serumAmount;
+        // 420000000*2*10^18/
+        let sheeshAmountInWei = parseEther(sheeshAmountInEth + "");
+        const resApprove = approvalWrite({
+          args: [
+            //address,
+            "0x8Af5D4C1b8623C62aED8C259895B21bF81036D3A",
+            // sheeshAmount,
+            sheeshAmountInWei,
+          ],
+        });
+      }, 1000);
     } catch (error) {
       alert(error);
     }
@@ -148,6 +154,41 @@ export const Home: FC<{}> = () => {
 
   return (
     <>
+      {/* <div className={"item"}>
+        <Loader
+          type="spinner-cub"
+          bgColor={"black"}
+          color={"white"}
+          title={"spinner-cub"}
+          size={100}
+        />
+      </div> */}
+      {(isApproveLoading || purchaseLoading) && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {isApproveLoading ? (
+            <p style={{ marginLeft: "10px", color: "#fff" }}>
+              Approving Sheesh Token
+            </p>
+          ) : (
+            <p style={{ marginLeft: "10px", color: "#fff" }}>
+              Purchasing Serum
+            </p>
+          )}
+        </div>
+      )}
+
       <Stack
         direction="VERTICAL"
         localStyles={{
